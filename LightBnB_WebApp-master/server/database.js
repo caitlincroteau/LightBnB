@@ -113,7 +113,30 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+
+  const queryString = `
+  SELECT reservations.*, properties.*, avg(rating) as average_rating
+  FROM reservations
+  JOIN properties ON reservations.property_id = properties.id
+  JOIN property_reviews ON properties.id = property_reviews.property_id
+  WHERE reservations.guest_id = $1
+  GROUP BY properties.id, reservations.id
+  ORDER BY reservations.start_date
+  LIMIT $2`;
+  const values = [guest_id, limit];
+
+  return pool
+  .query(queryString, values)
+  .then(result => {
+    console.log('reservations', result.rows);
+    return result.rows;
+  })
+  .catch(err => {
+    console.log('error', err.message);
+    return null;
+  })
+
+  // return getAllProperties(null, 2);
 }
 exports.getAllReservations = getAllReservations;
 
@@ -136,6 +159,7 @@ const getAllProperties = (options, limit = 10) => {
     console.log(err.message);
   });
 };
+//need to refactor to use options parameter and use if statements to check where in the query each option goes.
 
 
 
