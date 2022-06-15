@@ -20,22 +20,21 @@ const pool = new Pool({
  */
 const getUserWithEmail = function(email) {
 
+  const values = [email];
   const queryString = `
   SELECT * FROM users WHERE email = $1`;
-  const values = [email];
-
+  
   return pool
   .query(queryString, values)
-  .then((result) => {
-    console.log("Result rows", result.rows[0]);
+  .then(result => {
     return result.rows[0];
   })
   .catch((err) => {
-    console.log("error", err.message);
     return null;
   });
 
-  // let user;
+  // OG CODE:
+  //let user;
   // for (const userId in users) {
   //   user = users[userId];
   //   if (user.email.toLowerCase() === email.toLowerCase()) {
@@ -55,23 +54,20 @@ exports.getUserWithEmail = getUserWithEmail;
  */
 const getUserWithId = function(id) {
 
+  const values = [id];
   const queryString = `
   SELECT * FROM users WHERE id = $1`;
-  const values = [id];
-
+  
   return pool
   .query(queryString, values)
-  .then((result) => {
-    console.log(result.rows[0]);
+  .then(result => {
     return result.rows[0];
   })
-  .catch((err) => {
-    console.log(err.message);
+  .catch(err => {
     return null;
-  })
+  });
 
-
-  // return Promise.resolve(users[id]);
+  // OG CODE: return Promise.resolve(users[id]);
 }
 exports.getUserWithId = getUserWithId;
 
@@ -83,22 +79,20 @@ exports.getUserWithId = getUserWithId;
  */
 const addUser =  function(user) {
 
+  const values = [user.name, user.email, user.password];
   const queryString = `INSERT into users (name, email, password) VALUES ($1, $2, $3) RETURNING *`;
-  const values = [user.name, user.email, user.password]
   
   return pool
   .query(queryString, values)
-  .then((result) => {
-    console.log("user obj", result.rows[0]);
+  .then(result => {
     return result.rows[0];
   })
-  .catch((err) => {
-    console.log('error', err.message);
+  .catch(err => {
     return null;
-  })
+  });
 
-
-  // const userId = Object.keys(users).length + 1;
+  // OG CODE:
+  //const userId = Object.keys(users).length + 1;
   // user.id = userId;
   // users[userId] = user;
   // return Promise.resolve(user);
@@ -114,6 +108,7 @@ exports.addUser = addUser;
  */
 const getAllReservations = function(guest_id, limit = 10) {
 
+  const values = [guest_id, limit];
   const queryString = `
   SELECT reservations.*, properties.*, avg(rating) as average_rating
   FROM reservations
@@ -123,7 +118,6 @@ const getAllReservations = function(guest_id, limit = 10) {
   GROUP BY properties.id, reservations.id
   ORDER BY reservations.start_date
   LIMIT $2`;
-  const values = [guest_id, limit];
 
   return pool
   .query(queryString, values)
@@ -132,11 +126,10 @@ const getAllReservations = function(guest_id, limit = 10) {
     return result.rows;
   })
   .catch(err => {
-    console.log('error', err.message);
     return null;
-  })
+  });
 
-  // return getAllProperties(null, 2);
+  // OG CODE: return getAllProperties(null, 2);
 }
 exports.getAllReservations = getAllReservations;
 
@@ -149,21 +142,91 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = (options, limit = 10) => {
+
+  let values = [];
+  let queryString = `SELECT properties.*, avg(property_reviews.rating) as average_rating
+  FROM properties
+  JOIN property_reviews ON properties.id = property_id `;
+
+  //check for city
+  if (options.city) {
+    values.push(`%${options.city}%`);
+    if (values.length === 1) {
+      queryString += `WHERE `;
+    } else {
+      queryString += `AND `;
+    }
+    queryString += `city LIKE $${values.length} `;
+  }
+
+  //check for owner_id
+  if (options.owner_id) {
+    values.push(`${options.owner_id}`);
+    if (values.length === 1) {
+      queryString += `WHERE `;
+    } else {
+      queryString += `AND `;
+    }
+    queryString += `owner_id LIKE $${values.length} `; 
+  }
+
+  //check for min price/night
+  if (options.minimum_price_per_night) {
+    let priceFormatted = options.minimum_price_per_night * 100;
+    values.push(`${priceFormatted}`);
+    if (values.length === 1) {
+      queryString += `WHERE `;
+    } else {
+      queryString += `AND `;
+    }
+    queryString += `cost_per_night >= $${values.length} `;
+  }
+
+  //check for max price/night
+  if (options.maximum_price_per_night) {
+    let priceFormatted = options.maximum_price_per_night * 100
+    values.push(`${priceFormatted}`);
+    if (values.length === 1) {
+      queryString += `WHERE `;
+    } else {
+      queryString += `AND `;
+    }
+    queryString += `cost_per_night <= $${values.length} `;
+  }
+
+  //group by
+  queryString += `
+  GROUP BY properties.id `;
+
+  //check for min rating
+  if (options.minimum_rating) {
+    values.push(`${options.minimum_rating}`);
+    queryString += `HAVING avg(rating) >= $${values.length} `;
+  }
+
+  //order and limit
+  values.push(limit);
+  queryString += `
+  ORDER by cost_per_night
+  LIMIT $${values.length};
+  `;
+
+  console.log("QUERY:", queryString, 'VALUES ', values)
+
   return pool
-  .query(`SELECT * FROM properties LIMIT $1`, [limit])
-  .then((result) => {
-    console.log(result.rows);
+  .query(queryString, values)
+  .then(result => {
+    console.log("result", result.rows)
     return result.rows;
   })
-  .catch((err) => {
-    console.log(err.message);
+  .catch(err => {
+    console.log('error', err.message)
+    return null;
   });
 };
-//need to refactor to use options parameter and use if statements to check where in the query each option goes.
 
-
-
-//   const limitedProperties = {};
+//   OG CODE:
+//const limitedProperties = {};
 //   for (let i = 1; i <= limit; i++) {
 //     limitedProperties[i] = properties[i];
 //   }
