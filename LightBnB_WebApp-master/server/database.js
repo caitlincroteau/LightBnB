@@ -10,6 +10,17 @@ const pool = new Pool({
   database: 'lightbnb'
 });
 
+//helper function. Determines placement of query string: if  'WHERE ' or 'AND ' should be used.
+const findQueryStringPlacement = function(values) {
+  queryString = '';
+  if (values.length === 1) {
+    queryString = `WHERE `;
+  } else {
+    queryString = `AND `;
+  }
+  return queryString;
+};
+
 
 /// Users
 
@@ -153,22 +164,14 @@ const getAllProperties = (options, limit = 10) => {
   //check for city
   if (options.city) {
     values.push(`%${options.city}%`);
-    if (values.length === 1) {
-      queryString += `WHERE `;
-    } else {
-      queryString += `AND `;
-    }
+    queryString += findQueryStringPlacement(values);
     queryString += `city LIKE $${values.length} `;
   }
 
   //check for owner_id
   if (options.owner_id) {
     values.push(`${options.owner_id}`);
-    if (values.length === 1) {
-      queryString += `WHERE `;
-    } else {
-      queryString += `AND `;
-    }
+    queryString += findQueryStringPlacement(values);
     queryString += `owner_id LIKE $${values.length} `; 
   }
 
@@ -176,11 +179,7 @@ const getAllProperties = (options, limit = 10) => {
   if (options.minimum_price_per_night) {
     let priceFormatted = options.minimum_price_per_night * 100;
     values.push(`${priceFormatted}`);
-    if (values.length === 1) {
-      queryString += `WHERE `;
-    } else {
-      queryString += `AND `;
-    }
+    queryString += findQueryStringPlacement(values);
     queryString += `cost_per_night >= $${values.length} `;
   }
 
@@ -188,11 +187,7 @@ const getAllProperties = (options, limit = 10) => {
   if (options.maximum_price_per_night) {
     let priceFormatted = options.maximum_price_per_night * 100
     values.push(`${priceFormatted}`);
-    if (values.length === 1) {
-      queryString += `WHERE `;
-    } else {
-      queryString += `AND `;
-    }
+    queryString += findQueryStringPlacement(values);
     queryString += `cost_per_night <= $${values.length} `;
   }
 
