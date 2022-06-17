@@ -1,14 +1,7 @@
-const properties = require('./json/properties.json');
-const users = require('./json/users.json');
-const { Pool } = require('pg');
+const properties = require('../json/properties.json');
+const users = require('../json/users.json');
+const pool = require('./require_pg')
 const { query } = require('express');
-
-const pool = new Pool({
-  user: 'vagrant',
-  password: '123',
-  host: 'localhost',
-  database: 'lightbnb'
-});
 
 //helper function. Determines placement of query string: if  'WHERE ' or 'AND ' should be used.
 const findQueryStringPlacement = function(values) {
@@ -41,20 +34,10 @@ const getUserWithEmail = function(email) {
     return result.rows[0];
   })
   .catch((err) => {
+    console.error(err);
     return null;
   });
 
-  // OG CODE:
-  //let user;
-  // for (const userId in users) {
-  //   user = users[userId];
-  //   if (user.email.toLowerCase() === email.toLowerCase()) {
-  //     break;
-  //   } else {
-  //     user = null;
-  //   }
-  // }
-  // return Promise.resolve(user);
 }
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -75,10 +58,10 @@ const getUserWithId = function(id) {
     return result.rows[0];
   })
   .catch(err => {
+    console.error(err);
     return null;
   });
 
-  // OG CODE: return Promise.resolve(users[id]);
 }
 exports.getUserWithId = getUserWithId;
 
@@ -91,24 +74,19 @@ exports.getUserWithId = getUserWithId;
 const addUser =  function(user) {
 
   const values = [user.name, user.email, user.password];
-  const queryString = `INSERT into users (name, email, password) VALUES ($1, $2, $3) RETURNING *`;
+  const queryString = `
+  INSERT into users (name, email, password) VALUES ($1, $2, $3) RETURNING *`;
   
   return pool
   .query(queryString, values)
   .then(result => {
-    console.log('add user result rows', result.rows);
-    console.log('add user result rows at 0', result.rows[0])
     return result.rows[0];
   })
   .catch(err => {
+    console.error(err);
     return null;
   });
 
-  // OG CODE:
-  //const userId = Object.keys(users).length + 1;
-  // user.id = userId;
-  // users[userId] = user;
-  // return Promise.resolve(user);
 }
 exports.addUser = addUser;
 
@@ -135,14 +113,13 @@ const getAllReservations = function(guest_id, limit = 10) {
   return pool
   .query(queryString, values)
   .then(result => {
-    console.log('reservations', result.rows);
     return result.rows;
   })
   .catch(err => {
+    console.error(err);
     return null;
   });
 
-  // OG CODE: return getAllProperties(null, 2);
 }
 exports.getAllReservations = getAllReservations;
 
@@ -157,7 +134,8 @@ exports.getAllReservations = getAllReservations;
 const getAllProperties = (options, limit = 10) => {
 
   let values = [];
-  let queryString = `SELECT properties.*, avg(property_reviews.rating) as average_rating
+  let queryString = `
+  SELECT properties.*, avg(property_reviews.rating) as average_rating
   FROM properties
   JOIN property_reviews ON properties.id = property_id `;
 
@@ -208,26 +186,16 @@ const getAllProperties = (options, limit = 10) => {
   LIMIT $${values.length};
   `;
 
-  console.log("QUERY:", queryString, 'VALUES ', values)
-
   return pool
   .query(queryString, values)
   .then(result => {
-    console.log("result", result.rows)
     return result.rows;
   })
   .catch(err => {
-    console.log('error', err.message)
+    console.error(err);
     return null;
   });
 };
-
-//   OG CODE:
-//const limitedProperties = {};
-//   for (let i = 1; i <= limit; i++) {
-//     limitedProperties[i] = properties[i];
-//   }
-//   return Promise.resolve(limitedProperties);
 
 exports.getAllProperties = getAllProperties;
 
@@ -239,20 +207,22 @@ exports.getAllProperties = getAllProperties;
  */
 const addProperty = function(property) {
 
-  const values = [property.owner_id,
-  property.title,
-  property.description,
-  property.thumbnail_photo_url,
-  property.cover_photo_url,
-  property.cost_per_night,
-  property.street,
-  property.city,
-  property.province,
-  property.post_code,
-  property.country,
-  property.parking_spaces,
-  property.number_of_bathrooms,
-  property.number_of_bedrooms];
+  const values = [
+    property.owner_id,
+    property.title,
+    property.description,
+    property.thumbnail_photo_url,
+    property.cover_photo_url,
+    property.cost_per_night,
+    property.street,
+    property.city,
+    property.province,
+    property.post_code,
+    property.country,
+    property.parking_spaces,
+    property.number_of_bathrooms,
+    property.number_of_bedrooms
+  ];
 
   const queryString = `
   INSERT into properties (owner_id,
@@ -274,18 +244,12 @@ const addProperty = function(property) {
   return pool
   .query(queryString, values)
   .then(result => {
-    console.log('added prop', result.rows[0])
     return result.rows[0];
   })
   .catch(err => {
-    console.log('err', err);
+    console.error(err);
     return null;
   })
 
-  //OG CODE:
-  // const propertyId = Object.keys(properties).length + 1;
-  // property.id = propertyId;
-  // properties[propertyId] = property;
-  // return Promise.resolve(property);
-}
+};
 exports.addProperty = addProperty;
