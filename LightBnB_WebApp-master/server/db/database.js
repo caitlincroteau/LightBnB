@@ -1,11 +1,11 @@
-const properties = require('../json/properties.json');
-const users = require('../json/users.json');
-const pool = require('./require_pg')
-const { query } = require('express');
+// const properties = require('../json/properties.json');
+// const users = require('../json/users.json');
+const pool = require('./require_pg');
+// const { query } = require('express');
 
 //helper function. Determines placement of query string: if  'WHERE ' or 'AND ' should be used.
 const findQueryStringPlacement = function(values) {
-  queryString = '';
+  let queryString = '';
   if (values.length === 1) {
     queryString = `WHERE `;
   } else {
@@ -29,16 +29,16 @@ const getUserWithEmail = function(email) {
   SELECT * FROM users WHERE email = $1`;
   
   return pool
-  .query(queryString, values)
-  .then(result => {
-    return result.rows[0];
-  })
-  .catch((err) => {
-    console.error(err);
-    return null;
-  });
+    .query(queryString, values)
+    .then(result => {
+      return result.rows[0];
+    })
+    .catch((err) => {
+      console.error(err);
+      return null;
+    });
 
-}
+};
 exports.getUserWithEmail = getUserWithEmail;
 
 /**
@@ -53,16 +53,16 @@ const getUserWithId = function(id) {
   SELECT * FROM users WHERE id = $1`;
   
   return pool
-  .query(queryString, values)
-  .then(result => {
-    return result.rows[0];
-  })
-  .catch(err => {
-    console.error(err);
-    return null;
-  });
+    .query(queryString, values)
+    .then(result => {
+      return result.rows[0];
+    })
+    .catch(err => {
+      console.error(err);
+      return null;
+    });
 
-}
+};
 exports.getUserWithId = getUserWithId;
 
 
@@ -78,16 +78,16 @@ const addUser =  function(user) {
   INSERT into users (name, email, password) VALUES ($1, $2, $3) RETURNING *`;
   
   return pool
-  .query(queryString, values)
-  .then(result => {
-    return result.rows[0];
-  })
-  .catch(err => {
-    console.error(err);
-    return null;
-  });
+    .query(queryString, values)
+    .then(result => {
+      return result.rows[0];
+    })
+    .catch(err => {
+      console.error(err);
+      return null;
+    });
 
-}
+};
 exports.addUser = addUser;
 
 /// Reservations
@@ -111,16 +111,16 @@ const getAllReservations = function(guest_id, limit = 10) {
   LIMIT $2`;
 
   return pool
-  .query(queryString, values)
-  .then(result => {
-    return result.rows;
-  })
-  .catch(err => {
-    console.error(err);
-    return null;
-  });
+    .query(queryString, values)
+    .then(result => {
+      return result.rows;
+    })
+    .catch(err => {
+      console.error(err);
+      return null;
+    });
 
-}
+};
 exports.getAllReservations = getAllReservations;
 
 /// Properties
@@ -150,7 +150,7 @@ const getAllProperties = (options, limit = 10) => {
   if (options.owner_id) {
     values.push(`${options.owner_id}`);
     queryString += findQueryStringPlacement(values);
-    queryString += `owner_id LIKE $${values.length} `; 
+    queryString += `owner_id LIKE $${values.length} `;
   }
 
   //check for min price/night
@@ -163,7 +163,7 @@ const getAllProperties = (options, limit = 10) => {
 
   //check for max price/night
   if (options.maximum_price_per_night) {
-    let priceFormatted = options.maximum_price_per_night * 100
+    let priceFormatted = options.maximum_price_per_night * 100;
     values.push(`${priceFormatted}`);
     queryString += findQueryStringPlacement(values);
     queryString += `cost_per_night <= $${values.length} `;
@@ -187,16 +187,15 @@ const getAllProperties = (options, limit = 10) => {
   `;
 
   return pool
-  .query(queryString, values)
-  .then(result => {
-    return result.rows;
-  })
-  .catch(err => {
-    console.error(err);
-    return null;
-  });
+    .query(queryString, values)
+    .then(result => {
+      return result.rows;
+    })
+    .catch(err => {
+      console.error(err);
+      return null;
+    });
 };
-
 exports.getAllProperties = getAllProperties;
 
 
@@ -242,14 +241,14 @@ const addProperty = function(property) {
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`;
 
   return pool
-  .query(queryString, values)
-  .then(result => {
-    return result.rows[0];
-  })
-  .catch(err => {
-    console.error(err);
-    return null;
-  })
+    .query(queryString, values)
+    .then(result => {
+      return result.rows[0];
+    })
+    .catch(err => {
+      console.error(err);
+      return null;
+    });
 
 };
 exports.addProperty = addProperty;
