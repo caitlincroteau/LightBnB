@@ -1,10 +1,10 @@
 # LightBnB
 
-LightBnB is a travel app that allows you to search for accomodations. Users can view property information, book reservations, view their reservations, and write reviews. 
+LightBnB is a travel app that allows you to search for accomodations. Users can view property information, book reservations, view their reservations, and add their rental properties to the database.
 
 LightBnB was built as a student exercise with Lighthouse Labs. The goal of this project was to design a database and use server-side JavaScript to display the information from queries to web pages.
 
-The code I wrote for this project is contained in database.js and require_pg.js files.
+The code I wrote for this project is contained in the db directory (database.js and index.js files).
 
 ## Project Structure
 
@@ -31,7 +31,7 @@ The code I wrote for this project is contained in database.js and require_pg.js 
   ├── json
   ├──db
   │  ├── database.js
-  │  └── require_pg.js
+  │  └── index.js
   └── routes
       ├── apiRoutes.js
       └── userRoutes.js
@@ -48,7 +48,10 @@ The code I wrote for this project is contained in database.js and require_pg.js 
 * `sass` contains all of the sass files. 
 * `server` contains all of the server side and database code.
   * `server.js` is the entry point to the application. This connects the routes to the database.
-  * `apiRoutes.js` and `userRoutes.js` are responsible for any HTTP requests to `/users/something` or `/api/something`. 
+  * `routes` contains all of the route files.
+    * `apiRoutes.js` and `userRoutes.js` are responsible for any HTTP requests to `/users/something` or `/api/something`. 
+  * `db` contains all of the database related files.
+     * `database.js` is responsible for all queries to the database. It connects to the database `lightbnb`.
+    * `index.js` is responsible for requiring node-postgres in order to have a client pool.
   * `json` is a directory that contains a bunch of dummy data in `.json` files that are no longer in use.
-  * `database.js` is responsible for all queries to the database. It connects to the database `lightbnb`.
-  * `require_pg.js` is responsible for requiring node-postgres in order to have a client pool.
+ 

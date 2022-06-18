@@ -56,11 +56,11 @@ $(() => {
   });
   $("header").on("click", '.my_listing_button', function() {
     propertyListings.clearListings();
-    getAllListings(`owner_id=${currentUser.id}`)
-      .then(function(json) {
-        propertyListings.addProperties(json.properties);
-        views_manager.show('listings');
-    });
+    // getAllListings(`owner_id=${currentUser.id}`)
+    //   .then(function(json) {
+    //     propertyListings.addProperties(json.properties);
+    //     views_manager.show('listings');
+    // });
   });
 
   $("header").on("click", '.home', function() {

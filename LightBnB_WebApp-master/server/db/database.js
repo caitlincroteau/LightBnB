@@ -1,6 +1,6 @@
 // const properties = require('../json/properties.json');
 // const users = require('../json/users.json');
-const pool = require('./require_pg');
+const pool = require('.');
 // const { query } = require('express');
 
 //helper function. Determines placement of query string: if  'WHERE ' or 'AND ' should be used.
