@@ -1,7 +1,4 @@
-// const properties = require('../json/properties.json');
-// const users = require('../json/users.json');
 const pool = require('.');
-// const { query } = require('express');
 
 //helper function. Determines placement of query string: if  'WHERE ' or 'AND ' should be used.
 const findQueryStringPlacement = function(values) {
@@ -148,9 +145,10 @@ const getAllProperties = (options, limit = 10) => {
 
   //check for owner_id
   if (options.owner_id) {
+    console.log('owner_id', options.owner_id)
     values.push(`${options.owner_id}`);
     queryString += findQueryStringPlacement(values);
-    queryString += `owner_id LIKE $${values.length} `;
+    queryString += `owner_id = $${values.length} `;
   }
 
   //check for min price/night
