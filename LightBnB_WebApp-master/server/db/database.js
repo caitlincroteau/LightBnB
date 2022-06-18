@@ -145,7 +145,6 @@ const getAllProperties = (options, limit = 10) => {
 
   //check for owner_id
   if (options.owner_id) {
-    console.log('owner_id', options.owner_id)
     values.push(`${options.owner_id}`);
     queryString += findQueryStringPlacement(values);
     queryString += `owner_id = $${values.length} `;
