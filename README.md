@@ -1,10 +1,10 @@
 # LightBnB
 
-LightBnB is a travel app that allows you to search for accomodations. Users can view property information, book reservations, view their reservations, and add their rental properties to the database.
+LightBnB is a travel app that allows you to search for accomodations. Users can view property information, book reservations, and view their reservations. They can also add and view their own rental properties.
 
 LightBnB was built as a student exercise with Lighthouse Labs. The goal of this project was to design a database and use server-side JavaScript to display the information from queries to web pages.
 
-The code I wrote for this project is contained in the db directory (database.js and index.js files).
+The code I wrote for the app is contained in the db directory (database.js and index.js files).
 
 ## Project Structure (LightBnB_WebApp-master)
 
